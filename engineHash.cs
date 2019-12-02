@@ -11,19 +11,50 @@ namespace asymmetricEncryption.engines.hash
         private const int MAXCHARVALUE = 126;
         private const int MINCHARVALUE = 21;
         private const int AVERAGECHAR = (MAXCHARVALUE + MINCHARVALUE) / 2;
+        private const int ONE = 1, TWO = 2;
         private int mod = BASEMOD;
 
         public Hash() {
             Debug.WriteLine("Hash class successfully initialized");
         }
+        /**
+         * Convert a text into a hash
+         * @param  {string} string text          the text to convert
+         * @return {Hash_Return}        the hash
+         */
         public Hash_Return getHash(string text) {
             string initial_hash = calcHash(text);
 
             string return_hash = calcAndConvertHash(initial_hash);
 
-            Hash_Return hash_return = new Hash_Return(addStartingHash(return_hash), isRight(return_hash));
+            Hash_Return hash_return = new Hash_Return(addStartingHash(return_hash), isRight(return_hash), String.Empty);
 
             return hash_return;
+        }
+        /**
+         * Convert the thing into a String, then calc it, return an error if you can't convert the thing into a String
+         * @param  {any} any text          the thing to convert
+         * @return {Hash_Return}     the hash
+         */
+        public Hash_Return getHashFromAnyType(any text) {
+            try {
+                string text_converted = text.ToString();
+
+                string initial_hash = calcHash(test_converted);
+
+                string return_hash = calcAndConvertHash(initial_hash);
+
+                Hash_Return hash_return = new Hash_Return(addStartingHash(return_hash), isRight(return_hash), String.Empty);
+                return hash_return;
+            } catch (InvalidCastException ex) {
+                // catch a !IConvertible exception
+                Hash_Return hash_return = new Hash_Return(String.Empty, false, "!IConvertible " + ex);
+                return hash_return;
+            } catch (Exception ex) {
+                // catch a generic exception
+                Hash_Return hash_return = new Hash_Return(String.Empty, false, "Generic ex " + ex);
+                return hash_return;
+            }
         }
         private string calcHash(string text) {
             string return_hash = String.Empty;
@@ -47,6 +78,11 @@ namespace asymmetricEncryption.engines.hash
         private string addStartingHash(string text) {
             return STARTINGHASH + text;
         }
+        /**
+         * calc and conert the array encrypted to an ${NBCHAR} array length
+         * @param  {[type]} string hash          the text encrypted
+         * @return {[type]}        the converted array
+         */
         private string calcAndConvertHash(string hash) {
             int[] values = parse(hash);
 
@@ -58,14 +94,14 @@ namespace asymmetricEncryption.engines.hash
             List<int> return_list = new List<int>();
 
             for (int index = 0; index < chain.Length; index += 2) {
-                return_list.Add(Convert.ToInt32(appendValue(chain, index)));
+                return_list.Add(appendValue(chain, index));
             }
             return return_list.ToArray();
         }
-        private string appendValue(string chain, int index) {
-            string temp_value = chain[index].ToString();
+        private int appendValue(string chain, int index) {
+            int temp_value = (int)chain[index];
             if (!isOutOfRange(chain, (index + 1))) {
-                temp_value += chain[index + 1];
+                temp_value += (int)chain[index + 1];
             }
             return temp_value;
         }
@@ -85,14 +121,19 @@ namespace asymmetricEncryption.engines.hash
         }
         private int calcOneCell(int[] values, int p_index) {
             int temp_value = 0;
-            for (int index = 0; index < values.Length; index++) {
-                if (isAtFirstIndex(index)) {
-                    temp_value += values[(index + p_index) % values.Length];
-                } else {
-                    temp_value += values[p_index % values.Length] - values[(index + (index - 1)) % values.Length];
-                }
-            }
+            /**TODO :
+             *  calc one cell :D
+             */
+            int first_index = getIndexInRange(p_index, values.Length);
+            int second_index = getIndexInRange(p_index + ONE, values.Length);
+            int third_index = getIndexInRange(p_index + TWO, values.Length);
+
+            
+
             return getIntInRange(temp_value);
+        }
+        private int getIndexInRange(int init_val, int range_max) {
+            return Math.Abs(init_val - range_max);
         }
         private int getIntInRange(int value) {
             return (value % (MAXCHARVALUE - MINCHARVALUE)) + MINCHARVALUE;
@@ -132,9 +173,11 @@ namespace asymmetricEncryption.engines.hash
     class Hash_Return {
         private string hash;
         private bool isRight;
-        public Hash_Return(string hash, bool isRight) {
+        private string error;
+        public Hash_Return(string hash, bool isRight, string error) {
             this.hash = hash;
             this.isRight = isRight;
+            this.error = error;
         }
         public string Hash {
             get { return this.hash; }
@@ -142,5 +185,8 @@ namespace asymmetricEncryption.engines.hash
     	public bool IsRight {
     		get { return this.isRight; }
     	}
+        public string Error {
+            get { return this.error; }
+        }
     }
 }

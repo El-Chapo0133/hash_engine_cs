@@ -6,4 +6,5 @@ Simple class that calc hash from input
  - cannot come back to the initial state
 
 ## Errors
- - cannot convert any type, only string
+ hash is wrong :D
+  -> always return "$21%21212121212121212121"
