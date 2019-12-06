@@ -36,11 +36,11 @@ namespace asymmetricEncryption.engines.hash
          * @param  {any} any text          the thing to convert
          * @return {Hash_Return}     the hash
          */
-        public Hash_Return getHashFromAnyType(any text) {
+        public Hash_Return getHashFromAnyType(dynamic text) {
             try {
                 string text_converted = text.ToString();
 
-                string initial_hash = calcHash(test_converted);
+                string initial_hash = calcHash(text_converted);
 
                 string return_hash = calcAndConvertHash(initial_hash);
 
